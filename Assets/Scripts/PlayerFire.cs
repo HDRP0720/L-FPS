@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerFire : MonoBehaviour
 {
+  [SerializeField] private int weaponPower = 5;
+
   [SerializeField] private Transform projectileTransform;
   [SerializeField] private GameObject projectileObject;
   [SerializeField] private float throwPower = 15f;
@@ -31,11 +33,18 @@ public class PlayerFire : MonoBehaviour
 
       if(Physics.Raycast(ray, out hit))
       {
-        Debug.Log(hit.point);
-        bulletEffect.transform.position = hit.point;
-        bulletEffect.transform.forward = hit.normal;
+        if(hit.transform.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        {
+          EnemyController enemyController = hit.transform.GetComponent<EnemyController>();
+          enemyController.HitEnemy(weaponPower);
+        }
+        else
+        {       
+          bulletEffect.transform.position = hit.point;
+          bulletEffect.transform.forward = hit.normal;
 
-        ps.Play();
+          ps.Play();
+        }        
       }
     }
 

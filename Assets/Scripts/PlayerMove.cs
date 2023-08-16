@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerMove : MonoBehaviour
 {
+  [SerializeField] private int currentHP = 20;
+  [SerializeField] private int maxHP = 100;
   [SerializeField] private float moveSpeed = 7f;
   [SerializeField] private float jumpPower = 10f;
 
@@ -44,5 +46,10 @@ public class PlayerMove : MonoBehaviour
 
     // transform.position += dir * moveSpeed * Time.deltaTime;
     cc.Move(dir * moveSpeed * Time.deltaTime);
+  }
+
+  public void DamageAction(int damage)
+  {
+    currentHP -= damage;
   }
 }
