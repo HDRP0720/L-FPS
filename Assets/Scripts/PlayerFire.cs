@@ -26,6 +26,8 @@ public class PlayerFire : MonoBehaviour
     Cursor.visible = false;
     Cursor.lockState = CursorLockMode.Locked;
 
+    if(GameManager.gm.GetGameState != EGameState.Run) return;    
+
     if(Input.GetMouseButtonDown(0))
     {
       Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);

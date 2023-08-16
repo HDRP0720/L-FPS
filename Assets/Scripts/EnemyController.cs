@@ -1,13 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnemyController : MonoBehaviour
 {
   [SerializeField] private int currentHP = 15;
   [SerializeField] private int maxHP = 100;
+  [SerializeField] private Slider hpSlider;
+  [Space]
   [SerializeField] private int attackPower = 3;
-
+  [Space]
   [SerializeField] private float moveDistance = 20f;
   [SerializeField] private float findDistance = 8f;
   [SerializeField] private float attackDistance = 2f;
@@ -31,6 +34,7 @@ public class EnemyController : MonoBehaviour
   }
   private void Update() 
   {
+    hpSlider.value = (float)currentHP / (float)maxHP;
     switch(state)
     {
       case EnemyState.Idle:
@@ -150,6 +154,8 @@ public class EnemyController : MonoBehaviour
   {
     if(state == EnemyState.Damaged || state == EnemyState.Die || state == EnemyState.Return)
       return;
+
+    hpSlider.gameObject.SetActive(true);
 
     currentHP -= damage;
     if(currentHP > 0)
