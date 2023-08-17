@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class EnemyController : MonoBehaviour
  
   private EnemyState state;
   private CharacterController cc;
+  private NavMeshAgent agent;
   private Animator animator;
   private float currentTime = 0;
   private float attackDelay = 2f;
@@ -32,6 +34,7 @@ public class EnemyController : MonoBehaviour
     currentHP = maxHP;
     state = EnemyState.Idle;
     cc = GetComponent<CharacterController>();
+    agent = GetComponent<NavMeshAgent>();
     animator = GetComponentInChildren<Animator>();
     originPos = transform.position;
     originRot = transform.rotation;
@@ -87,9 +90,13 @@ public class EnemyController : MonoBehaviour
     }
     else if(Vector3.Distance(transform.position, player.position) > attackDistance)
     {
-      Vector3 dir = (player.position - transform.position).normalized;
-      cc.Move(dir * moveSpeed * Time.deltaTime);
-      transform.forward = dir;
+      // Vector3 dir = (player.position - transform.position).normalized;
+      // cc.Move(dir * moveSpeed * Time.deltaTime);
+      // transform.forward = dir;
+      agent.isStopped = true;
+      agent.ResetPath();
+      agent.stoppingDistance = attackDistance;
+      agent.destination = player.position;
     }
     else
     {
@@ -124,12 +131,17 @@ public class EnemyController : MonoBehaviour
   {
     if(Vector3.Distance(transform.position, originPos) > 0.1f)
     {
-      Vector3 dir = (originPos - transform.position).normalized;
-      cc.Move(dir * moveSpeed * Time.deltaTime);
-      transform.forward = dir;
+      // Vector3 dir = (originPos - transform.position).normalized;
+      // cc.Move(dir * moveSpeed * Time.deltaTime);
+      // transform.forward = dir;
+      agent.destination = originPos;
+      agent.stoppingDistance = 0;
     }
     else
     {
+      agent.isStopped = true;
+      agent.ResetPath();
+
       transform.position = originPos;
       transform.rotation = originRot;
       currentHP = maxHP;
@@ -171,6 +183,9 @@ public class EnemyController : MonoBehaviour
     hpSlider.gameObject.SetActive(true);
 
     currentHP -= damage;
+    agent.isStopped = true;
+    agent.ResetPath();
+    
     if(currentHP > 0)
     {
       state = EnemyState.Damaged;
