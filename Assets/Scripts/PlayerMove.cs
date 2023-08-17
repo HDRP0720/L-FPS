@@ -15,6 +15,7 @@ public class PlayerMove : MonoBehaviour
   [SerializeField] private GameObject hitEffect;
 
   private CharacterController cc;
+  private Animator animator;
   private float gravity = -20f;
   private float yVelocity = 0;
   private bool bIsJumping = false;
@@ -25,6 +26,7 @@ public class PlayerMove : MonoBehaviour
   private void Start() 
   {
     cc = GetComponent<CharacterController>();
+    animator = GetComponentInChildren<Animator>();
   }
   private void Update() 
   {
@@ -40,6 +42,8 @@ public class PlayerMove : MonoBehaviour
 
     Vector3 dir = new Vector3(h, 0, v);
     dir = dir.normalized;
+
+    animator.SetFloat("MoveMotion", dir.magnitude);
 
     dir = Camera.main.transform.TransformDirection(dir);
     if(bIsJumping && cc.collisionFlags == CollisionFlags.Below)

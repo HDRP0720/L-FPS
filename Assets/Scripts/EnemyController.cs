@@ -19,9 +19,12 @@ public class EnemyController : MonoBehaviour
  
   private EnemyState state;
   private CharacterController cc;
+  private Animator animator;
   private float currentTime = 0;
   private float attackDelay = 2f;
   private Vector3 originPos;
+  private Quaternion originRot;
+
   private Transform player;
 
   private void Start() 
@@ -29,7 +32,10 @@ public class EnemyController : MonoBehaviour
     currentHP = maxHP;
     state = EnemyState.Idle;
     cc = GetComponent<CharacterController>();
+    animator = GetComponentInChildren<Animator>();
     originPos = transform.position;
+    originRot = transform.rotation;
+
     player = GameObject.Find("Player").transform;
   }
   private void Update() 
@@ -68,7 +74,8 @@ public class EnemyController : MonoBehaviour
     if(Vector3.Distance(transform.position, player.position) < findDistance)
     {
       state = EnemyState.Move;
-      Debug.Log("상태전환: Idle -> Move");
+      animator.SetTrigger("IdleToMove");
+      Debug.Log("State: Idle -> Move");
     }
   }
   private void Move()
@@ -76,18 +83,20 @@ public class EnemyController : MonoBehaviour
     if(Vector3.Distance(transform.position, originPos) > moveDistance)
     {
       state = EnemyState.Return;
-      Debug.Log("상태전환: Move -> Return");
+      Debug.Log("State: Move -> Return");
     }
     else if(Vector3.Distance(transform.position, player.position) > attackDistance)
     {
       Vector3 dir = (player.position - transform.position).normalized;
       cc.Move(dir * moveSpeed * Time.deltaTime);
+      transform.forward = dir;
     }
     else
     {
       state = EnemyState.Attack;
       currentTime = attackDelay;
-      Debug.Log("상태전환: Move -> Attack");
+      animator.SetTrigger("MoveToAttackDelay");
+      Debug.Log("State: Move -> Attack");
     }
   }
   private void Attack()
@@ -97,7 +106,8 @@ public class EnemyController : MonoBehaviour
       currentTime += Time.deltaTime;
       if(currentTime > attackDelay)
       {
-        player.GetComponent<PlayerMove>().DamageAction(attackPower);
+        // player.GetComponent<PlayerMove>().DamageAction(attackPower);
+        animator.SetTrigger("StartAttack");
         Debug.Log("Attack");
         currentTime = 0;
       }
@@ -106,7 +116,8 @@ public class EnemyController : MonoBehaviour
     {
       state = EnemyState.Move;
       currentTime = 0;
-      Debug.Log("상태전환: Attack -> Move");
+      animator.SetTrigger("AttackToMove");
+      Debug.Log("State: Attack -> Move");
     }
   }
   private void Return()
@@ -115,13 +126,16 @@ public class EnemyController : MonoBehaviour
     {
       Vector3 dir = (originPos - transform.position).normalized;
       cc.Move(dir * moveSpeed * Time.deltaTime);
+      transform.forward = dir;
     }
     else
     {
       transform.position = originPos;
+      transform.rotation = originRot;
       currentHP = maxHP;
       state = EnemyState.Idle;
-      Debug.Log("상태전환: Return -> Idle");
+      animator.SetTrigger("MoveToIdle");
+      Debug.Log("State: Return -> Idle");
     }
   }
   private void Damaged()
@@ -130,9 +144,9 @@ public class EnemyController : MonoBehaviour
   }
   private IEnumerator DamageProcess()
   {
-    yield return new WaitForSeconds(0.5f);
+    yield return new WaitForSeconds(1f);
     state = EnemyState.Move;
-    Debug.Log("상태전환: Damaged -> Move");
+    Debug.Log("State: Damaged -> Move");
   }
 
   private void Die()
@@ -145,10 +159,9 @@ public class EnemyController : MonoBehaviour
   {
     cc.enabled = false;
     yield return new WaitForSeconds(2.0f);
-    Debug.Log("소멸");
+    Debug.Log("Perishment");
     Destroy(gameObject);
-  }
-  
+  }  
 
   public void HitEnemy(int damage)
   {
@@ -161,15 +174,23 @@ public class EnemyController : MonoBehaviour
     if(currentHP > 0)
     {
       state = EnemyState.Damaged;
+      animator.SetTrigger("Damaged");
       Damaged();
-      Debug.Log("상태전환: Any State -> Move");
+      Debug.Log("State: Any State -> Move");
     }
     else
     {
       state = EnemyState.Die;
+      hpSlider.gameObject.SetActive(false);
+      animator.SetTrigger("Die");
       Die();
-      Debug.Log("상태전환: Any State -> Die");
+      Debug.Log("State: Any State -> Die");
     }
+  }
+
+  public void AttackAction()
+  {
+    player.GetComponent<PlayerMove>().DamageAction(attackPower);
   }
 
   private void OnDrawGizmosSelected() 

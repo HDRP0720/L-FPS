@@ -13,12 +13,15 @@ public class PlayerFire : MonoBehaviour
   [Space]
   [SerializeField] private GameObject bulletEffect;
 
+  private Animator animator;
+
   private bool bIsAiming = false;
   private GameObject granade;
   private ParticleSystem ps;
 
   private void Start() 
   {
+    animator = GetComponentInChildren<Animator>();
     ps = bulletEffect.GetComponent<ParticleSystem>();
   }
   private void Update() 
@@ -30,6 +33,10 @@ public class PlayerFire : MonoBehaviour
 
     if(Input.GetMouseButtonDown(0))
     {
+      if(animator.GetFloat("MoveMotion") == 0)
+      {
+        animator.SetTrigger("Attack");
+      }
       Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
       RaycastHit hit = new RaycastHit();
 

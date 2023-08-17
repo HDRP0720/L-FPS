@@ -41,16 +41,13 @@ public class GameManager : MonoBehaviour
   private void Update() 
   {
     if(gState == EGameState.Run)
-    {
-      crosshair.SetActive(true);
-    }
-    else
-    {
-      crosshair.SetActive(false);
-    }
-    
+      crosshair.SetActive(true);    
+    else    
+      crosshair.SetActive(false);   
+
     if(player.GetCurrentHP <= 0)
     {
+      player.GetComponentInChildren<Animator>().SetFloat("MoveMotion", 0f);
       gameLabel.SetActive(true);
       gameText.text = "Game Over";
       gameText.color = new Color32(255, 0, 0, 255);
