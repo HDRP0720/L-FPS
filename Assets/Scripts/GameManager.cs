@@ -41,9 +41,16 @@ public class GameManager : MonoBehaviour
   private void Update() 
   {
     if(gState == EGameState.Run)
-      crosshair.SetActive(true);    
-    else    
-      crosshair.SetActive(false);   
+    {
+      Cursor.visible = false;
+      Cursor.lockState = CursorLockMode.Locked;
+
+      crosshair.SetActive(true);
+    }      
+    else
+    {
+      crosshair.SetActive(false); 
+    } 
 
     if(player.GetCurrentHP <= 0)
     {

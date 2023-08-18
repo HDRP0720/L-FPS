@@ -18,12 +18,13 @@ public class EnemyController : MonoBehaviour
 
   [SerializeField] private float moveSpeed = 5f;
  
-  private EnemyState state;
+  private EEnemyState state;
   private CharacterController cc;
   private NavMeshAgent agent;
   private Animator animator;
   private float currentTime = 0;
   private float attackDelay = 2f;
+
   private Vector3 originPos;
   private Quaternion originRot;
 
@@ -32,10 +33,11 @@ public class EnemyController : MonoBehaviour
   private void Start() 
   {
     currentHP = maxHP;
-    state = EnemyState.Idle;
+    state = EEnemyState.Idle;
     cc = GetComponent<CharacterController>();
     agent = GetComponent<NavMeshAgent>();
     animator = GetComponentInChildren<Animator>();
+
     originPos = transform.position;
     originRot = transform.rotation;
 
@@ -46,27 +48,27 @@ public class EnemyController : MonoBehaviour
     hpSlider.value = (float)currentHP / (float)maxHP;
     switch(state)
     {
-      case EnemyState.Idle:
+      case EEnemyState.Idle:
         Idle();
         break;
 
-      case EnemyState.Move:
+      case EEnemyState.Move:
         Move();
         break;
 
-      case EnemyState.Attack:
+      case EEnemyState.Attack:
         Attack();
         break;
 
-      case EnemyState.Return:
+      case EEnemyState.Return:
         Return();
         break;
 
-      case EnemyState.Damaged:
+      case EEnemyState.Damaged:
         // Damaged();
         break;
 
-      case EnemyState.Die:
+      case EEnemyState.Die:
         // Die();
         break;
     }
@@ -76,7 +78,7 @@ public class EnemyController : MonoBehaviour
   {
     if(Vector3.Distance(transform.position, player.position) < findDistance)
     {
-      state = EnemyState.Move;
+      state = EEnemyState.Move;
       animator.SetTrigger("IdleToMove");
       Debug.Log("State: Idle -> Move");
     }
@@ -85,14 +87,11 @@ public class EnemyController : MonoBehaviour
   {
     if(Vector3.Distance(transform.position, originPos) > moveDistance)
     {
-      state = EnemyState.Return;
+      state = EEnemyState.Return;
       Debug.Log("State: Move -> Return");
     }
     else if(Vector3.Distance(transform.position, player.position) > attackDistance)
-    {
-      // Vector3 dir = (player.position - transform.position).normalized;
-      // cc.Move(dir * moveSpeed * Time.deltaTime);
-      // transform.forward = dir;
+    {      
       agent.isStopped = true;
       agent.ResetPath();
       agent.stoppingDistance = attackDistance;
@@ -100,7 +99,7 @@ public class EnemyController : MonoBehaviour
     }
     else
     {
-      state = EnemyState.Attack;
+      state = EEnemyState.Attack;
       currentTime = attackDelay;
       animator.SetTrigger("MoveToAttackDelay");
       Debug.Log("State: Move -> Attack");
@@ -113,7 +112,6 @@ public class EnemyController : MonoBehaviour
       currentTime += Time.deltaTime;
       if(currentTime > attackDelay)
       {
-        // player.GetComponent<PlayerMove>().DamageAction(attackPower);
         animator.SetTrigger("StartAttack");
         Debug.Log("Attack");
         currentTime = 0;
@@ -121,7 +119,7 @@ public class EnemyController : MonoBehaviour
     }
     else
     {
-      state = EnemyState.Move;
+      state = EEnemyState.Move;
       currentTime = 0;
       animator.SetTrigger("AttackToMove");
       Debug.Log("State: Attack -> Move");
@@ -130,10 +128,7 @@ public class EnemyController : MonoBehaviour
   private void Return()
   {
     if(Vector3.Distance(transform.position, originPos) > 0.1f)
-    {
-      // Vector3 dir = (originPos - transform.position).normalized;
-      // cc.Move(dir * moveSpeed * Time.deltaTime);
-      // transform.forward = dir;
+    { 
       agent.destination = originPos;
       agent.stoppingDistance = 0;
     }
@@ -145,7 +140,7 @@ public class EnemyController : MonoBehaviour
       transform.position = originPos;
       transform.rotation = originRot;
       currentHP = maxHP;
-      state = EnemyState.Idle;
+      state = EEnemyState.Idle;
       animator.SetTrigger("MoveToIdle");
       Debug.Log("State: Return -> Idle");
     }
@@ -157,7 +152,7 @@ public class EnemyController : MonoBehaviour
   private IEnumerator DamageProcess()
   {
     yield return new WaitForSeconds(1f);
-    state = EnemyState.Move;
+    state = EEnemyState.Move;
     Debug.Log("State: Damaged -> Move");
   }
 
@@ -177,7 +172,7 @@ public class EnemyController : MonoBehaviour
 
   public void HitEnemy(int damage)
   {
-    if(state == EnemyState.Damaged || state == EnemyState.Die || state == EnemyState.Return)
+    if(state == EEnemyState.Damaged || state == EEnemyState.Die || state == EEnemyState.Return)
       return;
 
     hpSlider.gameObject.SetActive(true);
@@ -188,14 +183,14 @@ public class EnemyController : MonoBehaviour
     
     if(currentHP > 0)
     {
-      state = EnemyState.Damaged;
+      state = EEnemyState.Damaged;
       animator.SetTrigger("Damaged");
       Damaged();
       Debug.Log("State: Any State -> Move");
     }
     else
     {
-      state = EnemyState.Die;
+      state = EEnemyState.Die;
       hpSlider.gameObject.SetActive(false);
       animator.SetTrigger("Die");
       Die();
@@ -233,7 +228,7 @@ public class EnemyController : MonoBehaviour
   }
 }
 
-public enum EnemyState
+public enum EEnemyState
 {
   Idle, Move, Attack, Return, Damaged, Die
 }
