@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class GameManager : MonoBehaviour
   [Space]
   [SerializeField] private GameObject gameLabel;
   [SerializeField] private GameObject crosshair;
+  [SerializeField] private GameObject gameOption;
 
   private TMP_Text gameText;
   private PlayerMove player;
@@ -42,15 +44,23 @@ public class GameManager : MonoBehaviour
   {
     if(gState == EGameState.Run)
     {
-      Cursor.visible = false;
-      Cursor.lockState = CursorLockMode.Locked;
-
       crosshair.SetActive(true);
     }      
     else
     {
       crosshair.SetActive(false); 
-    } 
+    }
+
+    if(Input.GetKey(KeyCode.LeftAlt) || gState != EGameState.Run)
+    {
+      Cursor.visible = true;
+      Cursor.lockState = CursorLockMode.None;
+    }
+    else
+    {
+      Cursor.visible = false;
+      Cursor.lockState = CursorLockMode.Locked;
+    }
 
     if(player.GetCurrentHP <= 0)
     {
@@ -58,6 +68,10 @@ public class GameManager : MonoBehaviour
       gameLabel.SetActive(true);
       gameText.text = "Game Over";
       gameText.color = new Color32(255, 0, 0, 255);
+
+      Transform buttons = gameText.transform.GetChild(0);
+      buttons.gameObject.SetActive(true);
+
       gState = EGameState.GameOver;
     }
   }
@@ -73,9 +87,34 @@ public class GameManager : MonoBehaviour
     gameLabel.SetActive(false);
     gState = EGameState.Run;
   }
+
+  public void OpenOptionWindow()
+  {
+    gameOption.SetActive(true);
+    Time.timeScale = 0f;
+    gState = EGameState.Pause;
+  }
+
+  public void ResumeGame()
+  {
+    gameOption.SetActive(false);
+    Time.timeScale = 1f;
+    gState = EGameState.Run;
+  }
+
+  public void RestartGame()
+  {
+    Time.timeScale = 1f;
+    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+  }
+
+  public void QuitGame()
+  {
+    Application.Quit();
+  }
 }
 
 public enum EGameState
 {
-  Ready, Run, GameOver
+  Ready, Run, GameOver, Pause
 }
