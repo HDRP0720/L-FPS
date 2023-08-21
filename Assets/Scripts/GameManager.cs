@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
   [SerializeField] private EGameState gState;
   [Space]
   [SerializeField] private GameObject gameLabel;
-  [SerializeField] private GameObject crosshair;
+  [SerializeField] private GameObject crosshairGroup;
   [SerializeField] private GameObject gameOption;
 
   private TMP_Text gameText;
@@ -44,11 +44,11 @@ public class GameManager : MonoBehaviour
   {
     if(gState == EGameState.Run)
     {
-      crosshair.SetActive(true);
+      crosshairGroup.SetActive(true);
     }      
     else
     {
-      crosshair.SetActive(false); 
+      crosshairGroup.SetActive(false); 
     }
 
     if(Input.GetKey(KeyCode.LeftAlt) || gState != EGameState.Run)
@@ -105,7 +105,8 @@ public class GameManager : MonoBehaviour
   public void RestartGame()
   {
     Time.timeScale = 1f;
-    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    SceneManager.LoadScene(1);
   }
 
   public void QuitGame()

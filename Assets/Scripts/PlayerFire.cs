@@ -17,6 +17,18 @@ public class PlayerFire : MonoBehaviour
   [SerializeField] private GameObject bulletEffect;
   [SerializeField] private GameObject[] MuzzleEffects;
 
+  [Header("UI")]
+  [SerializeField] private GameObject assaultRifleIcon;
+  [SerializeField] private GameObject sniperRifleIcon;
+  [Space]
+  [SerializeField] private GameObject assaultCrosshair;
+  [SerializeField] private GameObject sniperCrosshair;
+  [Space]
+  [SerializeField] private GameObject grenadeIcon;
+  [SerializeField] private GameObject zoomIcon;
+  [Space]
+  [SerializeField] private GameObject sniperZoom;
+
   private EWeaponMode weaponMode;
   private Animator animator;
   private ParticleSystem ps;
@@ -28,11 +40,12 @@ public class PlayerFire : MonoBehaviour
   private void Start() 
   {
     weaponModeTextField.text = "Normal Mode";
-    weaponMode = EWeaponMode.Normal;    
+    weaponMode = EWeaponMode.Normal;
+    ChangeWeaponUI(weaponMode);
 
     animator = GetComponentInChildren<Animator>();
     ps = bulletEffect.GetComponent<ParticleSystem>();
-  }
+  }  
   private void Update() 
   {
     if(GameManager.gm.GetGameState != EGameState.Run) return;
@@ -42,11 +55,16 @@ public class PlayerFire : MonoBehaviour
       weaponMode = EWeaponMode.Normal;
       weaponModeTextField.text = "Normal Mode";
       Camera.main.fieldOfView = 60f;
+
+      sniperZoom.SetActive(false);
+      ChangeWeaponUI(weaponMode);
     }
     else if (Input.GetKeyDown(KeyCode.Alpha2))
     {
       weaponMode = EWeaponMode.Sniper;
-       weaponModeTextField.text = "Sniper Mode";
+      weaponModeTextField.text = "Sniper Mode";
+
+      ChangeWeaponUI(weaponMode);
     }
 
     if(Input.GetMouseButtonDown(0))
@@ -96,15 +114,18 @@ public class PlayerFire : MonoBehaviour
           {
             Camera.main.fieldOfView = 15f;
             bIsZoomMode = true;
+            sniperCrosshair.SetActive(false);
+            sniperZoom.SetActive(true);
           }
           else
           {
             Camera.main.fieldOfView = 60f;
             bIsZoomMode = false;
+            sniperCrosshair.SetActive(true);
+            sniperZoom.SetActive(false);
           }
           break;
-      }
-           
+      }           
     }
     
     if(Input.GetMouseButtonUp(1) && bIsAiming)
@@ -115,6 +136,28 @@ public class PlayerFire : MonoBehaviour
       Rigidbody rb = granade.GetComponent<Rigidbody>();
       rb.isKinematic= false;
       rb.AddForce(Camera.main.transform.forward * throwPower, ForceMode.Impulse);
+    }
+  }
+
+  private void ChangeWeaponUI(EWeaponMode weaponMode)
+  {
+    if(weaponMode == EWeaponMode.Normal)
+    {
+      assaultRifleIcon.SetActive(true);
+      sniperRifleIcon.SetActive(false);
+      assaultCrosshair.SetActive(true);
+      sniperCrosshair.SetActive(false);
+      grenadeIcon.SetActive(true);
+      zoomIcon.SetActive(false);
+    }
+    else
+    {
+      assaultRifleIcon.SetActive(false);
+      sniperRifleIcon.SetActive(true);
+      assaultCrosshair.SetActive(false);
+      sniperCrosshair.SetActive(true);
+      grenadeIcon.SetActive(false);
+      zoomIcon.SetActive(true);
     }
   }
 
